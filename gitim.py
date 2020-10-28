@@ -17,8 +17,8 @@ import sys
 if python_version_tuple()[0] == u'2':
     input = lambda prompt: raw_input(prompt.encode('utf8')).decode('utf8')
 
-__author__ = u'"Mustafa Hasturk"'
-__version__ = '2.1.0'
+__author__ = u'"Daniel Pryor"'
+__version__ = '2.2.0'
 
 
 class Gitim():
