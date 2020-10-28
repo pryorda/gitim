@@ -18,7 +18,7 @@ if python_version_tuple()[0] == u'2':
     input = lambda prompt: raw_input(prompt.encode('utf8')).decode('utf8')
 
 __author__ = u'"Daniel Pryor, Forked from Mustafa Hasturk"'
-__version__ = '2.2.2'
+__version__ = '2.2.3'
 
 
 class Gitim():
@@ -100,8 +100,10 @@ Version: {__version__}
                 print(u'  Current Branch: {branch}'.format(branch=current_branch))
                 if "main" in local_repo.heads:
                     local_repo.git.checkout('main')
-                else:
+                elif "master" in local_repo.heads:
                     local_repo.git.checkout('master')
+                else:
+                    print(u'  Just pull...')
                 local_repo.remotes.origin.pull()
                 local_repo.git.checkout(current_branch)
                 print(u'  Switched back to branch: {branch}'.format(branch=current_branch))
