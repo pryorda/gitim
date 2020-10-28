@@ -17,8 +17,8 @@ import sys
 if python_version_tuple()[0] == u'2':
     input = lambda prompt: raw_input(prompt.encode('utf8')).decode('utf8')
 
-__author__ = u'"Daniel Pryor"'
-__version__ = '2.2.1'
+__author__ = u'"Daniel Pryor, Forked from Mustafa Hasturk"'
+__version__ = '2.2.2'
 
 
 class Gitim():
@@ -104,7 +104,7 @@ Version: {__version__}
                     local_repo.git.checkout('master')
                 local_repo.remotes.origin.pull()
                 local_repo.git.checkout(current_branch)
-                print(u' Switched back to branch: {branch}'.format(branch=current_branch))
+                print(u'  Switched back to branch: {branch}'.format(branch=current_branch))
             else:
                 print(u'Already cloned, skipping...\t"{repo.full_name}"'.format(repo=repo))
         print(u'FIN')
