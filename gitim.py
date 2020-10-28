@@ -104,7 +104,7 @@ Version: {__version__}
                     local_repo.git.checkout('master')
                 local_repo.remotes.origin.pull()
                 local_repo.git.checkout(current_branch)
-                print(u' Switched back to branch: {branch}'.format(branch=current_branch)
+                print(u' Switched back to branch: {branch}'.format(branch=current_branch))
             else:
                 print(u'Already cloned, skipping...\t"{repo.full_name}"'.format(repo=repo))
         print(u'FIN')
