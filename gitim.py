@@ -11,6 +11,9 @@ from platform import python_version_tuple
 
 from github import Github
 
+import git
+import sys
+
 if python_version_tuple()[0] == u'2':
     input = lambda prompt: raw_input(prompt.encode('utf8')).decode('utf8')
 
@@ -32,7 +35,6 @@ class Gitim():
  ||     ||      |  '.'
  \'. __//       |   /
  `'----        `---`
-
 created by {__author__}
 Version: {__version__}
 """.format(__author__=__author__, __version__=__version__))
@@ -48,8 +50,6 @@ Version: {__version__}
         parser.add_argument('-o', '--org', help=u'Organisation/team. User used by default.')
         parser.add_argument('-d', '--dest', help=u'Destination directory. Created if doesn\'t exist. [curr_dir]')
         parser.add_argument('--nopull', action='store_true', help=u'Don\'t pull if repository exists. [false]')
-        parser.add_argument('--shallow', action='store_true', help=u'Perform shallow clone. [false]')
-        parser.add_argument('--ssh', action='store_true', help=u'Use ssh+git urls for checkout. [false]')
         parser.add_argument('--noforks', action='store_true', help=u'Skip forked repositories. [false]')
         return parser
 
@@ -85,22 +85,26 @@ Version: {__version__}
             join = partial(path.join, args.dest)
 
         get_repos = g.get_organization(args.org).get_repos if args.org else g.get_user().get_repos
-        for repo in get_repos():
-            if args.noforks and repo.fork:
-                print(u'Repo "{repo.full_name}" is a fork, skipping'.format(repo=repo))
-            elif not path.exists(join(repo.name)):
-                clone_url = repo.clone_url
-                if args.ssh:
-                    clone_url = repo.ssh_url
-                if args.shallow:
-                    print(u'Shallow cloning "{repo.full_name}"'.format(repo=repo))
-                    call([u'git', u'clone', '--depth=1', clone_url, join(repo.full_name)])
-                else:
-                    print(u'Cloning "{repo.full_name}"'.format(repo=repo))
-                    call([u'git', u'clone', clone_url, join(repo.full_name)])
+        sorted_repos = sorted(get_repos(), key=lambda repo: repo.name)
+        
+        for repo in sorted_repos:
+            if not path.exists(join(repo.name)):
+                clone_url = repo.ssh_url
+                print(u'Cloning "{repo.full_name}"'.format(repo=repo))
+                git.Repo.clone_from(
+                    clone_url, join(repo.name))
             elif not args.nopull:
                 print(u'Updating "{repo.name}"'.format(repo=repo))
-                call([u'git', u'pull'], env=dict(environ, GIT_DIR=join(repo.name, '.git').encode('utf8')))
+                local_repo = git.Repo(path=repo.name)
+                current_branch = local_repo.active_branch
+                print(u'  Current Branch: {branch}'.format(branch=current_branch))
+                if "main" in local_repo.heads:
+                    local_repo.git.checkout('main')
+                else:
+                    local_repo.git.checkout('master')
+                local_repo.remotes.origin.pull()
+                local_repo.git.checkout(current_branch)
+                print(u' Switched back to branch: {branch}'.format(branch=current_branch)
             else:
                 print(u'Already cloned, skipping...\t"{repo.full_name}"'.format(repo=repo))
         print(u'FIN')
